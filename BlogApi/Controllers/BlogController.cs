@@ -19,12 +19,12 @@ namespace BlogApi.Controllers
         public List<BlogApi.Models.Blog> GetAllBlogEntries()
         {
             var retval = new List<Blog>();
-            string connectionString = ConfigurationManager.AppSettings["DatabaseConnection"];
-            using (SqlConnection cn = new SqlConnection(connectionString))
+            var connectionString = ConfigurationManager.AppSettings["DatabaseConnection"];
+            using (var cn = new SqlConnection(connectionString))
             {
                 cn.Open();
-                using (SqlCommand cmd = new SqlCommand("SELECT EntryID, UserID, EntryText, EntryDate FROM BLOG_ENTRIES", cn))
-                using (SqlDataReader reader = cmd.ExecuteReader())
+                using (var cmd = new SqlCommand("SELECT EntryID, UserID, EntryText, EntryDate FROM BLOG_ENTRIES", cn))
+                using (var reader = cmd.ExecuteReader())
                 {
                     while (reader.Read())
                     {

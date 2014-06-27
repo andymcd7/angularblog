@@ -2,22 +2,37 @@
 
     var app = angular.module('blogApp', []);
     
-    var blogController = function ($scope, $http) {
+    var blogService = function ($http) {
 
-        var onComplete = function(response) {
-            $scope.Entries = response.data;
+        // todo: move this into a separate javascript file
+        // todo: wrap success/error in a single object to provide status
+
+        var onComplete = function (response) {
+            return response.data;
         };
-        
+
         var onError = function (response) {
-            $scope.Error = "Something went wrong";
+            return "Something went wrong";
         };
-        
-        $scope.ShowBlog = function () {
-            $http.get('/blogservice/api/Blog/GetAllBlogEntries')
+
+        this.GetEntries = function () {
+            var promise = $http.get('/blogservice/api/Blog/GetAllBlogEntries')
                 .then(onComplete, onError);
+            return promise;
         };
     };
 
-    app.controller('BlogController', ['$scope', '$http', blogController]);
+    app.service('BlogService', ['$http', blogService]);
+
+    var blogController = function ($scope, BlogService) {
+        
+        $scope.ShowBlog = function () {
+            BlogService.GetEntries().then(function(d) {
+                $scope.Entries = d;
+            });
+        };
+    };
+
+    app.controller('BlogController', ['$scope', 'BlogService', blogController]);
 
 }());
