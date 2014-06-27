@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Cors;
 using BlogApi.Models;
+using System.Configuration;
+using System.Data.SqlClient;
 
 namespace BlogApi.Controllers
 {
@@ -16,31 +18,28 @@ namespace BlogApi.Controllers
         [HttpGet]
         public List<BlogApi.Models.Blog> GetAllBlogEntries()
         {
-            var blogs = new List<Blog>();
-            var dummy = new Blog
+            var retval = new List<Blog>();
+            string connectionString = ConfigurationManager.AppSettings["DatabaseConnection"];
+            using (SqlConnection cn = new SqlConnection(connectionString))
             {
-                BlogDate = DateTime.Now,
-                BlogId = 7,
-                BlogText = "hello there",
-                BlogUser = 2
-            };
-            blogs.Add(dummy);
-            return blogs;
+                cn.Open();
+                using (SqlCommand cmd = new SqlCommand("SELECT EntryID, UserID, EntryText, EntryDate FROM BLOG_ENTRIES", cn))
+                using (SqlDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        var blogEntry = new Blog
+                        {
+                            BlogId = reader.GetInt32(0),
+                            BlogUser = reader.GetInt32(1),
+                            BlogText = reader.GetString(2),
+                            BlogDate = reader.GetDateTime(3)
+                        };
+                        retval.Add(blogEntry);
+                    }
+                }
+            }
+            return retval;
         }
-
-        //[HttpGet]
-        //public List<BlogApi.Models.Blog> GetBlogsByUser(int id)
-        //{
-        //    var blogs = new List<Blog>();
-        //    var dummy = new Blog
-        //    {
-        //        BlogDate = DateTime.Now,
-        //        BlogId = 7,
-        //        BlogText = "hello there",
-        //        BlogUser = id
-        //    };
-        //    blogs.Add(dummy);
-        //    return blogs;
-        //}
     }
 }
