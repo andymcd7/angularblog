@@ -17,23 +17,32 @@ namespace BlogApi.Controllers
     public class BlogController : ApiController
     {
 
-        // todo: add methods for full CRUD api
+        // todo: test this api, and also check in the service javascript file
+
         [HttpPost]
-        public bool AddBlogEntry(BlogApi.Models.Blog addBlog)
+        public int AddBlogEntry(Blog blog)
         {
             var connectionString = ConfigurationManager.AppSettings["DatabaseConnection"];
+            var retval = -1;
+
             using (var cn = new SqlConnection(connectionString))
             {
                 cn.Open();
-                using (var cmd = new SqlCommand("INSERT INTO BLOG_ENTRIES (UserID, EntryText, EntryDate) VALUES(@USER_ID, @ENTRY_TEXT, @ENTRY_DATE)", cn))
+                using (var cmd = new SqlCommand("INSERT INTO BLOG_ENTRIES (UserID, EntryText, EntryDate) VALUES(@USER_ID, @ENTRY_TEXT, @ENTRY_DATE) SELECT @@Identity As BlogID", cn))
                 {
-                    cmd.Parameters.Add(new SqlParameter("@USER_ID", SqlDbType.Int).Value = addBlog.BlogUser);
-                    cmd.Parameters.Add(new SqlParameter("@ENTRY_TEXT", SqlDbType.Text).Value = addBlog.BlogText);
-                    cmd.Parameters.Add(new SqlParameter("@ENTRY_DATE", SqlDbType.DateTime).Value = addBlog.BlogDate);
-                    cmd.ExecuteNonQuery();
+                    cmd.Parameters.Add(new SqlParameter("@USER_ID", SqlDbType.Int).Value = blog.BlogUser);
+                    cmd.Parameters.Add(new SqlParameter("@ENTRY_TEXT", SqlDbType.Text).Value = blog.BlogText);
+                    cmd.Parameters.Add(new SqlParameter("@ENTRY_DATE", SqlDbType.DateTime).Value = blog.BlogDate);
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            retval = reader.GetInt32(0);
+                        }
+                    }
                 }
             }
-            return true;
+            return retval;
         }
 
         [HttpGet]
@@ -61,6 +70,70 @@ namespace BlogApi.Controllers
                 }
             }
             return retval;
+        }
+
+        [HttpGet]
+        public List<BlogApi.Models.Blog> GetBlogEntry(int id)
+        {
+            var retval = new List<Blog>();
+            var connectionString = ConfigurationManager.AppSettings["DatabaseConnection"];
+            using (var cn = new SqlConnection(connectionString))
+            {
+                cn.Open();
+                using (var cmd = new SqlCommand("SELECT EntryID, UserID, EntryText, EntryDate FROM BLOG_ENTRIES WHERE EntryID = @EntryID", cn))
+                {
+                    cmd.Parameters.Add(new SqlParameter("@EntryID", SqlDbType.Int).Value = id);
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            var blogEntry = new Blog
+                            {
+                                BlogId = reader.GetInt32(0),
+                                BlogUser = reader.GetInt32(1),
+                                BlogText = reader.GetString(2),
+                                BlogDate = reader.GetDateTime(3)
+                            };
+                            retval.Add(blogEntry);
+                        }
+                    }
+                }
+
+            }
+            return retval;
+        }
+
+        [HttpDelete]
+        public bool DeleteBlogEntry(Blog blog)
+        {
+            var connectionString = ConfigurationManager.AppSettings["DatabaseConnection"];
+            using (var cn = new SqlConnection(connectionString))
+            {
+                cn.Open();
+                using (var cmd = new SqlCommand("DELETE FROM BLOG_ENTRIES WHERE EntryID = @EntryID", cn))
+                {
+                    cmd.Parameters.Add(new SqlParameter("@EntryID", SqlDbType.Int).Value = blog.BlogId);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            return true;
+        }
+
+        [HttpPut]
+        public bool UpdateBlogEntry(Blog blog)
+        {
+            var connectionString = ConfigurationManager.AppSettings["DatabaseConnection"];
+            using (var cn = new SqlConnection(connectionString))
+            {
+                cn.Open();
+                using (var cmd = new SqlCommand("UPDATE BLOG_ENTRIES SET EntryText = @EntryText, EntryDate = @EntryDate WHERE EntryID = @EntryID", cn))
+                {
+                    cmd.Parameters.Add(new SqlParameter("@EntryText", SqlDbType.VarChar).Value = blog.BlogText);
+                    cmd.Parameters.Add(new SqlParameter("@EntryDate", SqlDbType.DateTime).Value = blog.BlogDate);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            return true;
         }
     }
 }
