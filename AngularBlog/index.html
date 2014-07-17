@@ -18,6 +18,10 @@
             <hr />
             <div>
                 <h3>Blog Test</h3>
+                
+                <div ng-show="IsProcessing">
+                    Processing...
+                </div>
 
                 <div ng-show="Entries.length > 0 && Success">
                     <table>
@@ -28,8 +32,8 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr ng-repeat="entry in Entries">
-                                <td>{{entry.BlogDate}}</td>
+                            <tr ng-repeat="entry in Entries | orderBy:'-BlogDate'">
+                                <td>{{entry.BlogDate | date}}</td>
                                 <td>{{entry.BlogText}}</td>
                             </tr>
                         </tbody>

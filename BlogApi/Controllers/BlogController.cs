@@ -46,8 +46,10 @@ namespace BlogApi.Controllers
         }
 
         [HttpGet]
+        [ActionName("GetAllBlogEntries")]
         public List<BlogApi.Models.Blog> GetAllBlogEntries()
         {
+            System.Threading.Thread.Sleep(1000);
             var retval = new List<Blog>();
             var connectionString = ConfigurationManager.AppSettings["DatabaseConnection"];
             using (var cn = new SqlConnection(connectionString))
@@ -73,6 +75,7 @@ namespace BlogApi.Controllers
         }
 
         [HttpGet]
+        [ActionName("GetBlogEntry")]
         public List<BlogApi.Models.Blog> GetBlogEntry(int id)
         {
             var retval = new List<Blog>();
