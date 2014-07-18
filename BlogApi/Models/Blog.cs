@@ -9,7 +9,7 @@ namespace BlogApi.Models
     {
         public int BlogId { get; set; }
         public string BlogText { get; set; }
-        public DateTime BlogDate { get; set; }
-        public int BlogUser { get; set; }
+        public DateTime? BlogDate { get; set; }
+        public Int32 BlogUser { get; set; }
     }
 }

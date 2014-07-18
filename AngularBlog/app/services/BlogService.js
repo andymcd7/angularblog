@@ -1,5 +1,5 @@
 ﻿(function () {
-    angular.module('blogApp.services', []).
+    angular.module('blogApp.services').
       service('BlogService', function ($http) {
 
           var returnObject = function() {
@@ -27,9 +27,20 @@
                   .then(onComplete, onError);
               return promise;
           };
+          
+          var addBlog = function (blogUser, blogText) {
+              var data = {                  
+                  "BlogText":blogText,
+                  "BlogUser":1
+              };
+              var promise = $http.post('/blogservice/api/Blog/AddBlogEntry', JSON.stringify(data))
+                  .then(onComplete, onError);
+              return promise;
+          };
 
           return {              
-              GetEntries: getEntries
+              GetEntries: getEntries,
+              AddBlog: addBlog
           };
       });
 }());

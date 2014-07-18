@@ -17,32 +17,56 @@ namespace BlogApi.Controllers
     public class BlogController : ApiController
     {
 
-        // todo: test this api, and also check in the service javascript file
+        /*
+         * todo:
+         * 
+         * database
+         *      create user table
+         *      
+         * blog.html
+         *      get blog entries by user (populate dropdown with list of users)
+         *      add delete buttons on blog entries
+         *      convert blog results to ng-grid
+         *      
+         * addBlog.html
+         *      add fields
+         *      clean up look
+         *      
+         * updateBlog.html (new)
+         * 
+         * additional features:
+         *      large text area with formatting features (generate html and save in table?)
+         *      camera integration?
+         *      draw/paint pane?
+         * */
 
         [HttpPost]
-        public int AddBlogEntry(Blog blog)
+        public Blog AddBlogEntry(Blog blog)
         {
             var connectionString = ConfigurationManager.AppSettings["DatabaseConnection"];
-            var retval = -1;
 
+            if (blog.BlogDate == null)
+            {
+                blog.BlogDate = System.DateTime.Now;
+            }
             using (var cn = new SqlConnection(connectionString))
             {
                 cn.Open();
                 using (var cmd = new SqlCommand("INSERT INTO BLOG_ENTRIES (UserID, EntryText, EntryDate) VALUES(@USER_ID, @ENTRY_TEXT, @ENTRY_DATE) SELECT @@Identity As BlogID", cn))
                 {
-                    cmd.Parameters.Add(new SqlParameter("@USER_ID", SqlDbType.Int).Value = blog.BlogUser);
-                    cmd.Parameters.Add(new SqlParameter("@ENTRY_TEXT", SqlDbType.Text).Value = blog.BlogText);
-                    cmd.Parameters.Add(new SqlParameter("@ENTRY_DATE", SqlDbType.DateTime).Value = blog.BlogDate);
+                    cmd.Parameters.Add(new SqlParameter("@USER_ID", SqlDbType.Int) {Value = blog.BlogUser});
+                    cmd.Parameters.Add(new SqlParameter("@ENTRY_TEXT", SqlDbType.Text) {Value = blog.BlogText});
+                    cmd.Parameters.Add(new SqlParameter("@ENTRY_DATE", SqlDbType.DateTime){Value = blog.BlogDate});
                     using (var reader = cmd.ExecuteReader())
                     {
                         if (reader.Read())
                         {
-                            retval = reader.GetInt32(0);
+                            blog.BlogId = Convert.ToInt32(reader.GetDecimal(0));
                         }
                     }
                 }
             }
-            return retval;
+            return blog;
         }
 
         [HttpGet]

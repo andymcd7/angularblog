@@ -1,0 +1,15 @@
+﻿<div>
+    <h3>Create New Blog</h3>
+
+    <input type="text" ng-model="bloguser" />
+    <textarea ng-model="blogtext"></textarea>
+    <button type="button" class="btn btn-primary" ng-click="AddBlog()">Add Blog Entry</button>
+
+    <div ng-show="IsProcessing">
+        Processing...
+    </div>
+
+    <div class="text-danger" ng-show="!Success && ErrorMessage.length > 0">
+        {{ErrorMessage}}
+    </div>
+</div>

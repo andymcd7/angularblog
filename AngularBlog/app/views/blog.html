@@ -1,0 +1,29 @@
+﻿<button type="button" class="btn btn-primary" ng-click="ShowBlog(true)">Get All Blog Entries</button>
+<a href="#/add">Create New Blog Entry</a>
+<hr />
+<div ng-init="ShowBlog(false)">
+    <h3>Blog Test</h3>
+
+    <div ng-show="IsProcessing">
+        Processing...
+    </div>
+    <div ng-show="Entries.length > 0 && Success">
+        <table>
+            <thead>
+                <tr>
+                    <th>Blog Date</th>
+                    <th>Blog Text</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="entry in Entries | orderBy:'-BlogDate'">
+                    <td>{{entry.BlogDate | date}}</td>
+                    <td>{{entry.BlogText}}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="text-danger" ng-show="!Success && ErrorMessage.length > 0">
+        {{ErrorMessage}}
+    </div>
+</div>
