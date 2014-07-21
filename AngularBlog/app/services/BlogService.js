@@ -27,11 +27,17 @@
                   .then(onComplete, onError);
               return promise;
           };
+
+          var getEntriesByUser = function (userId) {
+              var promise = $http.get('/blogservice/api/Blog/GetBlogEntriesByUser?userId=' + userId)
+                  .then(onComplete, onError);
+              return promise;
+          };
           
           var addBlog = function (blogUser, blogText) {
               var data = {                  
                   "BlogText":blogText,
-                  "BlogUser":1
+                  "BlogUser":blogUser
               };
               var promise = $http.post('/blogservice/api/Blog/AddBlogEntry', JSON.stringify(data))
                   .then(onComplete, onError);
@@ -40,6 +46,7 @@
 
           return {              
               GetEntries: getEntries,
+              GetEntriesByUser: getEntriesByUser,
               AddBlog: addBlog
           };
       });

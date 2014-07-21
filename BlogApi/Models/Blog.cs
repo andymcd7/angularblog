@@ -12,4 +12,10 @@ namespace BlogApi.Models
         public DateTime? BlogDate { get; set; }
         public Int32 BlogUser { get; set; }
     }
+
+    public class User
+    {
+        public int UserId { get; set; }
+        public string UserName { get; set; }
+    }
 }

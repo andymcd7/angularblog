@@ -19,12 +19,11 @@ namespace BlogApi.Controllers
 
         /*
          * todo:
-         * 
-         * database
-         *      create user table
          *      
          * blog.html
-         *      get blog entries by user (populate dropdown with list of users)
+         *      landing page for selecting the blog user
+         *      display blog entries on separate view
+         *      persist blog data by user
          *      add delete buttons on blog entries
          *      convert blog results to ng-grid
          *      
@@ -99,17 +98,17 @@ namespace BlogApi.Controllers
         }
 
         [HttpGet]
-        [ActionName("GetBlogEntry")]
-        public List<BlogApi.Models.Blog> GetBlogEntry(int id)
+        [ActionName("GetBlogEntriesByUser")]
+        public List<BlogApi.Models.Blog> GetBlogEntriesByUser(int userId)
         {
             var retval = new List<Blog>();
             var connectionString = ConfigurationManager.AppSettings["DatabaseConnection"];
             using (var cn = new SqlConnection(connectionString))
             {
                 cn.Open();
-                using (var cmd = new SqlCommand("SELECT EntryID, UserID, EntryText, EntryDate FROM BLOG_ENTRIES WHERE EntryID = @EntryID", cn))
+                using (var cmd = new SqlCommand("SELECT E.EntryID, E.UserID, E.EntryText, E.EntryDate FROM BLOG_ENTRIES E JOIN BLOG_USER U ON E.UserID = U.UserID WHERE U.UserID = @UserID", cn))
                 {
-                    cmd.Parameters.Add(new SqlParameter("@EntryID", SqlDbType.Int).Value = id);
+                    cmd.Parameters.Add(new SqlParameter("@UserID", SqlDbType.Int) { Value = userId });
                     using (var reader = cmd.ExecuteReader())
                     {
                         while (reader.Read())

@@ -4,6 +4,11 @@
 <div ng-init="ShowBlog(false)">
     <h3>Blog Test</h3>
 
+    <div>
+        <label>Currently Selected User: </label>
+        <select ng-model="SelectedUser" ng-change="ShowBlogByUser()" ng-options="user.UserName for user in Users"></select>
+    </div>
+
     <div ng-show="IsProcessing">
         Processing...
     </div>

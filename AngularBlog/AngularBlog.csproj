@@ -61,6 +61,7 @@
   <ItemGroup>
     <Content Include="app\app.js" />
     <Content Include="app\controllers\AddBlogController.js" />
+    <Content Include="app\services\UserService.js" />
     <Content Include="app\services\PersistedData.js" />
     <Content Include="app\services\BlogService.js" />
     <Content Include="app\views\addBlog.html" />
