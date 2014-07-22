@@ -1,14 +1,5 @@
-﻿<button type="button" class="btn btn-primary" ng-click="ShowBlog(true)">Get All Blog Entries</button>
-<a href="#/add">Create New Blog Entry</a>
-<hr />
-<div ng-init="ShowBlog(false)">
-    <h3>Blog Test</h3>
-
-    <div>
-        <label>Currently Selected User: </label>
-        <select ng-model="SelectedUser" ng-change="ShowBlogByUser()" ng-options="user.UserName for user in Users"></select>
-    </div>
-
+﻿<hr />
+<div ng-init="Initialize()">
     <div ng-show="IsProcessing">
         Processing...
     </div>

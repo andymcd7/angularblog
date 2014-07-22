@@ -10,11 +10,11 @@
     
     app.config(function($routeProvider) {
         $routeProvider
-            .when("/blog", {
+            .when("/blog/:userName", {
                 templateUrl: "app/views/blog.html",
                 controller: "BlogController"
             })
-            .when("/add", {
+            .when("/add/:userName", {
                 templateUrl: "app/views/addBlog.html",
                 controller: "AddBlogController"
             })

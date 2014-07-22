@@ -13,6 +13,15 @@
 <body>
     <div class="container">
         <h1>Angular Blog Example</h1>
+        
+        <div ng-controller="BlogController">
+            <label>Blog User: </label>
+            <select ng-model="SelectedUser" ng-change="ViewUser()" ng-options="user.UserName for user in Users">
+                <option value="" selected>-- Select User --</option>
+            </select>
+            <a class="btn btn-primary" href="#/add/{{SelectedUser.UserName}}">Create New Blog Entry</a>
+        </div>
+
         <div ng-view></div>
     </div>
 

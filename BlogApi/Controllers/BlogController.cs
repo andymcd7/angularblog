@@ -21,9 +21,6 @@ namespace BlogApi.Controllers
          * todo:
          *      
          * blog.html
-         *      landing page for selecting the blog user
-         *      display blog entries on separate view
-         *      persist blog data by user
          *      add delete buttons on blog entries
          *      convert blog results to ng-grid
          *      
@@ -39,11 +36,35 @@ namespace BlogApi.Controllers
          *      draw/paint pane?
          * */
 
+        private int GetUserIdByUserName(string userName)
+        {
+            int retval = -1;
+            var connectionString = ConfigurationManager.AppSettings["DatabaseConnection"];
+            using (var cn = new SqlConnection(connectionString))
+            {
+                cn.Open();
+                using (var cmd = new SqlCommand("SELECT UserID FROM BLOG_USER WHERE UserName = @USER_NAME", cn))
+                {
+                    cmd.Parameters.Add(new SqlParameter("@USER_NAME", SqlDbType.VarChar) { Value = userName });
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            retval = reader.GetInt32(0);
+                        }
+                    }
+                }
+                
+            }
+            return retval;
+        }
+
         [HttpPost]
         public Blog AddBlogEntry(Blog blog)
         {
             var connectionString = ConfigurationManager.AppSettings["DatabaseConnection"];
 
+            var userId = GetUserIdByUserName(blog.BlogUser);
             if (blog.BlogDate == null)
             {
                 blog.BlogDate = System.DateTime.Now;
@@ -53,7 +74,7 @@ namespace BlogApi.Controllers
                 cn.Open();
                 using (var cmd = new SqlCommand("INSERT INTO BLOG_ENTRIES (UserID, EntryText, EntryDate) VALUES(@USER_ID, @ENTRY_TEXT, @ENTRY_DATE) SELECT @@Identity As BlogID", cn))
                 {
-                    cmd.Parameters.Add(new SqlParameter("@USER_ID", SqlDbType.Int) {Value = blog.BlogUser});
+                    cmd.Parameters.Add(new SqlParameter("@USER_ID", SqlDbType.Int) {Value = userId});
                     cmd.Parameters.Add(new SqlParameter("@ENTRY_TEXT", SqlDbType.Text) {Value = blog.BlogText});
                     cmd.Parameters.Add(new SqlParameter("@ENTRY_DATE", SqlDbType.DateTime){Value = blog.BlogDate});
                     using (var reader = cmd.ExecuteReader())
@@ -69,46 +90,18 @@ namespace BlogApi.Controllers
         }
 
         [HttpGet]
-        [ActionName("GetAllBlogEntries")]
-        public List<BlogApi.Models.Blog> GetAllBlogEntries()
-        {
-            System.Threading.Thread.Sleep(1000);
-            var retval = new List<Blog>();
-            var connectionString = ConfigurationManager.AppSettings["DatabaseConnection"];
-            using (var cn = new SqlConnection(connectionString))
-            {
-                cn.Open();
-                using (var cmd = new SqlCommand("SELECT EntryID, UserID, EntryText, EntryDate FROM BLOG_ENTRIES", cn))
-                using (var reader = cmd.ExecuteReader())
-                {
-                    while (reader.Read())
-                    {
-                        var blogEntry = new Blog
-                        {
-                            BlogId = reader.GetInt32(0),
-                            BlogUser = reader.GetInt32(1),
-                            BlogText = reader.GetString(2),
-                            BlogDate = reader.GetDateTime(3)
-                        };
-                        retval.Add(blogEntry);
-                    }
-                }
-            }
-            return retval;
-        }
-
-        [HttpGet]
         [ActionName("GetBlogEntriesByUser")]
-        public List<BlogApi.Models.Blog> GetBlogEntriesByUser(int userId)
+        public List<BlogApi.Models.Blog> GetBlogEntriesByUser(string userName)
         {
             var retval = new List<Blog>();
             var connectionString = ConfigurationManager.AppSettings["DatabaseConnection"];
+
             using (var cn = new SqlConnection(connectionString))
             {
                 cn.Open();
-                using (var cmd = new SqlCommand("SELECT E.EntryID, E.UserID, E.EntryText, E.EntryDate FROM BLOG_ENTRIES E JOIN BLOG_USER U ON E.UserID = U.UserID WHERE U.UserID = @UserID", cn))
+                using (var cmd = new SqlCommand("SELECT E.EntryID, U.UserName, E.EntryText, E.EntryDate FROM BLOG_ENTRIES E JOIN BLOG_USER U ON E.UserID = U.UserID WHERE U.UserName = @USER_NAME", cn))
                 {
-                    cmd.Parameters.Add(new SqlParameter("@UserID", SqlDbType.Int) { Value = userId });
+                    cmd.Parameters.Add(new SqlParameter("@USER_NAME", SqlDbType.VarChar) { Value = userName });
                     using (var reader = cmd.ExecuteReader())
                     {
                         while (reader.Read())
@@ -116,7 +109,7 @@ namespace BlogApi.Controllers
                             var blogEntry = new Blog
                             {
                                 BlogId = reader.GetInt32(0),
-                                BlogUser = reader.GetInt32(1),
+                                BlogUser = reader.GetString(1),
                                 BlogText = reader.GetString(2),
                                 BlogDate = reader.GetDateTime(3)
                             };

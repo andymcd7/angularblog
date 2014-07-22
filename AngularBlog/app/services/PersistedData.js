@@ -3,19 +3,19 @@
       factory('PersistedData', function () {
 
           var blogData = {};
-          blogData.Entries = [];
+          blogData.Entries = {};
           blogData.Users = [];
 
-          blogData.SetEntries = function(entries) {
-              blogData.Entries = entries;
+          blogData.SetEntries = function(userName, entries) {
+              blogData.Entries[userName] = entries;
           };
-          blogData.AddEntry = function(entry) {
-              blogData.Entries.push(entry);
+          blogData.AddEntry = function(userName, entry) {
+              blogData.Entries[userName].push(entry);
           };
           blogData.SetUsers = function (users) {
               blogData.Users = users;
           };
-
+          
           return blogData;
       });
 }());

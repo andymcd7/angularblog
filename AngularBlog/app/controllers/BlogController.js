@@ -1,45 +1,56 @@
 ﻿(function () {
     angular.module('blogApp.controllers').
-      controller('BlogController', function ($scope, BlogService, UserService, PersistedData) {
+        controller('BlogController', function($scope, $routeParams, $location, BlogService, UserService, PersistedData) {
 
-          // get list of users on page load
-          UserService.GetUsers().then(function (d) {
-              $scope.Users = d.value;
-              $scope.SelectedUser = d.value[0];
-              PersistedData.SetUsers(d.value);
-          });
+            $scope.Initialize = function () {
+                var userName = $routeParams.userName;
+                if (userName && userName.length > 0) {
+                    if (PersistedData.Entries && PersistedData.Entries[userName] && PersistedData.Entries[userName].length > 0) {
+                        $scope.Success = true;
+                        $scope.ErrorMessage = '';
+                        $scope.Entries = PersistedData.Entries[userName];
+                    } else {
+                        $scope.IsProcessing = true;
+                        BlogService.GetEntriesByUser(userName).then(function (d) {
+                            $scope.Success = d.success;
+                            $scope.ErrorMessage = d.errorMessage;
+                            $scope.Entries = d.value;
+                            PersistedData.SetEntries(userName, d.value);
+                            $scope.IsProcessing = false;
+                        });
+                    }
+                }
+            };
+            
+            $scope.ViewUser = function () {
+                var userName = '';
+                if ($scope.SelectedUser && $scope.SelectedUser.UserName) {
+                    userName = $scope.SelectedUser.UserName;
+                }
+                $location.path('blog/' + userName);
+            };
+            
+            var setSelectedUser = function() {
+                if ($routeParams.userName) {
+                    for (var i = 0; i < $scope.Users.length; i++) {
+                        if ($scope.Users[i].UserName == $routeParams.userName) {
+                            $scope.SelectedUser = $scope.Users[i];
+                        }
+                    }
+                }
+            };
 
-          $scope.ShowBlogByUser = function () {
-              $scope.IsProcessing = true;
-              BlogService.GetEntriesByUser($scope.SelectedUser.UserId).then(function (d) {
-                  $scope.Success = d.success;
-                  $scope.ErrorMessage = d.errorMessage;
-                  $scope.Entries = d.value;
-                  $scope.IsProcessing = false;
-              });
-          };
+            // get list of users on page load
+            if (PersistedData.Users && PersistedData.Users.length > 0) {
+                $scope.Users = PersistedData.Users;
+                setSelectedUser();
+            } else {
+                UserService.GetUsers().then(function (d) {
+                    $scope.Users = d.value;
+                    PersistedData.SetUsers(d.value);
+                    setSelectedUser();
+                });
+            }
 
-          $scope.ShowBlog = function (refreshData) {
-              if (!refreshData) {
-                  if (PersistedData.Entries && PersistedData.Entries.length > 0) {
-                      $scope.Success = true;
-                      $scope.ErrorMessage = '';
-                      $scope.Entries = PersistedData.Entries;
-                  } else {
-                      refreshData = true;
-                  }
-              }
-              
-              if (refreshData) {
-                  $scope.IsProcessing = true;
-                  BlogService.GetEntries().then(function (d) {
-                      $scope.Success = d.success;
-                      $scope.ErrorMessage = d.errorMessage;
-                      $scope.Entries = d.value;
-                      PersistedData.SetEntries(d.value);
-                      $scope.IsProcessing = false;
-                  });
-              }
-          };
-      });
+        });
 }());

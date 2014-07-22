@@ -1,12 +1,12 @@
 ﻿(function () {
     angular.module('blogApp.controllers').
-      controller('AddBlogController', function ($scope, $location, BlogService, PersistedData) {
+      controller('AddBlogController', function ($scope, $location, $routeParams, BlogService, PersistedData) {
           $scope.AddBlog = function () {
               $scope.IsProcessing = true;
-              BlogService.AddBlog($scope.bloguser, $scope.blogtext).then(function (d) {
+              BlogService.AddBlog($routeParams.userName, $scope.blogtext).then(function (d) {
                   if (d.success) {
-                      PersistedData.AddEntry(d.value);
-                      $location.path("blog");
+                      PersistedData.AddEntry($routeParams.userName, d.value);
+                      $location.path("blog/" + $routeParams.userName);
                   } else {
                       $scope.ErrorMessage = d.errorMessage;
                   }
