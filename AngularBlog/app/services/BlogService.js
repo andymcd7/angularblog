@@ -38,9 +38,16 @@
               return promise;
           };
 
+          var deleteEntry = function (blogId) {
+              var promise = $http.delete('/blogservice/api/Blog/DeleteBlogEntry?blogId=' + blogId)
+                  .then(onComplete, onError);
+              return promise;
+          };
+
           return {              
               GetEntriesByUser: getEntriesByUser,
-              AddBlog: addBlog
+              AddBlog: addBlog,
+              DeleteEntry: deleteEntry
           };
       });
 }());

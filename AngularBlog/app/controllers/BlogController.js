@@ -22,6 +22,20 @@
                 }
             };
             
+            $scope.DeleteEntry = function (blogId) {
+                var userName = $scope.SelectedUser.UserName;
+                var blogEntries = PersistedData.Entries[userName];
+                BlogService.DeleteEntry(blogId);
+                for (var i = 0; i < blogEntries.length; i++) {
+                    if (blogEntries[i].BlogId == blogId) {
+                        blogEntries.splice(i, 1);
+                        break;
+                    }
+                }
+                PersistedData.SetEntries(userName, blogEntries);
+                $scope.Entries = blogEntries;
+            };
+
             $scope.ViewUser = function () {
                 var userName = '';
                 if ($scope.SelectedUser && $scope.SelectedUser.UserName) {

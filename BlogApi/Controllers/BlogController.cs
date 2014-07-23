@@ -123,7 +123,7 @@ namespace BlogApi.Controllers
         }
 
         [HttpDelete]
-        public bool DeleteBlogEntry(Blog blog)
+        public bool DeleteBlogEntry(int blogId)
         {
             var connectionString = ConfigurationManager.AppSettings["DatabaseConnection"];
             using (var cn = new SqlConnection(connectionString))
@@ -131,7 +131,7 @@ namespace BlogApi.Controllers
                 cn.Open();
                 using (var cmd = new SqlCommand("DELETE FROM BLOG_ENTRIES WHERE EntryID = @EntryID", cn))
                 {
-                    cmd.Parameters.Add(new SqlParameter("@EntryID", SqlDbType.Int).Value = blog.BlogId);
+                    cmd.Parameters.Add(new SqlParameter("@EntryID", SqlDbType.Int) { Value = blogId });
                     cmd.ExecuteNonQuery();
                 }
             }

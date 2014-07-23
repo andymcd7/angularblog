@@ -9,12 +9,14 @@
                 <tr>
                     <th>Blog Date</th>
                     <th>Blog Text</th>
+                    <th> </th>
                 </tr>
             </thead>
             <tbody>
                 <tr ng-repeat="entry in Entries | orderBy:'-BlogDate'">
                     <td>{{entry.BlogDate | date}}</td>
                     <td>{{entry.BlogText}}</td>
+                    <td><a href="javascript:void(0);" ng-click="DeleteEntry(entry.BlogId)">Delete Record</a></td>
                 </tr>
             </tbody>
         </table>
